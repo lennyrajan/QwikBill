@@ -1,11 +1,11 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { type Invoice, type Settings } from './db';
 import { formatCurrency } from './billing-utils';
 import { format } from 'date-fns';
 
 export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
-    const doc = new jsPDF() as any;
+    const doc = new jsPDF();
 
     // Header Colors & Styling
     const primaryColor = [79, 70, 229]; // Indigo-600
@@ -14,14 +14,14 @@ export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
 
     // Shop Brand
     doc.setFontSize(22);
-    doc.setTextColor(...primaryColor);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     doc.setFont('helvetica', 'bold');
     doc.text(settings.shopName, 20, 25);
 
     // Invoice Title
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
-    doc.setFillColor(...primaryColor);
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
     const title = invoice.type.toUpperCase();
     const titleWidth = doc.getTextWidth(title) + 10;
     doc.rect(210 - titleWidth - 20, 17, titleWidth, 10, 'F');
@@ -29,7 +29,7 @@ export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
 
     // Shop Details (Left)
     doc.setFontSize(9);
-    doc.setTextColor(...mutedColor);
+    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
     doc.setFont('helvetica', 'normal');
     const shopDetails = [
         settings.shopAddress,
@@ -42,7 +42,7 @@ export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
     });
 
     // Invoice Details (Right)
-    doc.setTextColor(...textColor);
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
     doc.setFont('helvetica', 'bold');
     doc.text(`Invoice No: ${invoice.invoiceNumber}`, 140, 40);
     doc.setFont('helvetica', 'normal');
@@ -55,9 +55,9 @@ export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
     doc.rect(20, 60, 170, 25, 'S');
 
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...mutedColor);
+    doc.setTextColor(mutedColor[0], mutedColor[1], mutedColor[2]);
     doc.text('Bill To:', 25, 68);
-    doc.setTextColor(...textColor);
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
     doc.text(invoice.customer.name, 25, 75);
     doc.setFont('helvetica', 'normal');
     doc.text(`Ph: ${invoice.customer.phone}`, 25, 80);
@@ -66,21 +66,21 @@ export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
     // Line Items Table
     const tableRows = invoice.items.map((item, index) => [
         index + 1,
-        { content: `${item.name}\nHSN: ${item.hsnCode}`, styles: { fontStyle: 'bold' } },
+        { content: `${item.name}\nHSN: ${item.hsnCode}`, styles: { fontStyle: 'bold' as const } },
         item.quantity,
         formatCurrency(item.price).replace('₹', ''),
         `${item.taxSlab}%`,
         formatCurrency(item.total).replace('₹', ''),
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
         startY: 95,
         head: [['#', 'Item Description', 'Qty', 'Rate', 'Tax', 'Amount']],
         body: tableRows,
         theme: 'grid',
         headStyles: {
-            fillColor: primaryColor,
-            textColor: [255, 255, 255],
+            fillColor: primaryColor as [number, number, number],
+            textColor: [255, 255, 255] as [number, number, number],
             fontStyle: 'bold',
             halign: 'center'
         },
@@ -96,7 +96,7 @@ export async function generateInvoicePDF(invoice: Invoice, settings: Settings) {
     });
 
     // Summary (Below table)
-    const finalY = doc.previousAutoTable.finalY + 10;
+    const finalY = (doc as any).lastAutoTable.finalY + 10;
 
     doc.setFontSize(10);
     doc.setTextColor(...mutedColor);
