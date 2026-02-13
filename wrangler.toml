@@ -1,0 +1,5 @@
+name = "quik-bill"
+compatibility_date = "2024-02-13"
+
+[pages]
+directory = "out"
