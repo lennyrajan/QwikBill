@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy": "wrangler pages deploy ./out --project-name quik-bill --branch main"
+    "deploy": "echo 'Deployment handled by Cloudflare Pages automatic logic'"
   },
   "dependencies": {
     "clsx": "^2.1.1",
